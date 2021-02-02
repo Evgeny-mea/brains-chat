@@ -20,6 +20,7 @@ public class Controller implements Initializable {
     HBox msgPanel, authPanel;
 
     @FXML
+
     PasswordField passField;
 
     @FXML
