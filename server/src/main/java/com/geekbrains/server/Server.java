@@ -8,12 +8,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 import java.util.Vector;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Server {
     private boolean shownIoErrors = false;
     private Vector<ClientHandler> clients;
     private AuthService authService;
+    private ExecutorService executorService;
 
 
 
@@ -24,17 +28,21 @@ public class Server {
     public Server() {
         clients = new Vector<>();
         authService = new SimpleAuthService();
+        executorService = Executors.newCachedThreadPool();
+
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен на порту 8189");
             while (true) {
                 SqlClient.connect();
                 Socket socket = serverSocket.accept();
-                new ClientHandler(this, socket);
+                new ClientHandler(this, socket, executorService);
                 System.out.println("Подключился новый клиент");
 
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            executorService.shutdown();
         }
         System.out.println("Сервер завершил свою работу");
     }

@@ -20,13 +20,13 @@ public class ClientHandler {
     }
 
 
-    public ClientHandler(Server server, Socket socket) {
+    public ClientHandler(Server server, Socket socket, ExecutorService executorService) {
         try {
             this.server = server;
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-            new Thread(() -> {
+            executorService.submit(() -> {
                 try {
                     while (true) {
                         String msg = in.readUTF();
@@ -63,7 +63,7 @@ public class ClientHandler {
                 } finally {
                     ClientHandler.this.disconnect();
                 }
-            }).start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
